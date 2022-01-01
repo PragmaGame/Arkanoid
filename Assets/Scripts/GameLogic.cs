@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
 public class GameLogic : MonoBehaviour
 {
+    [SerializeField] private PlayerScoreModel _playerScoreModel;
     [SerializeField] private Sensor _sensor;
-    [SerializeField] private ViewGameUI _viewGameUI;
     [SerializeField] private ObjectPooler _objectPooler;
     [SerializeField] private ParticleSystem _particle;
     [SerializeField] private Types[] _typesBlock;
@@ -14,7 +15,6 @@ public class GameLogic : MonoBehaviour
    
 
     private List<Block> _blocks = new List<Block>();
-    private int _score = 0;
 
     private readonly int _maxCapacityBlockInLine = 6;
     private readonly int _maxAmountBlockInLine = 6;
@@ -23,13 +23,16 @@ public class GameLogic : MonoBehaviour
     private readonly float _blockWith = 0.8f;
     private readonly float _spawnPositionY = 4.15f;
     private readonly float _speed = 0.1f;
-
-    public event Action<int> ChangeScoreEvent;
     public event Action GameOveredEvent;
 
     private void OnEnable()
     {
         _sensor.GameOverEvent += OnGameOver;
+    }
+
+    private void Awake()
+    {
+        _playerScoreModel = FindObjectOfType<PlayerScoreModel>();
     }
 
     private void OnDisable()
@@ -51,8 +54,7 @@ public class GameLogic : MonoBehaviour
             {
                 _particle.transform.position = _blocks[i].gameObject.transform.position;
                 _particle.Play();
-                Debug.Log(_particle.isPlaying);
-                
+
                 AddScore(_blocks[i].Score);
                 _objectPooler.ReturnObject(_blocks[i].gameObject, _blocks[i].Type);
                 _blocks.RemoveAt(i);
@@ -67,8 +69,7 @@ public class GameLogic : MonoBehaviour
     
     private void AddScore(int value)
     {
-        _score += value;
-        ChangeScoreEvent?.Invoke(_score);
+        _playerScoreModel.AddScore(value);
     }
 
     private int ChooseType(float[] probabilityTypes)
@@ -126,8 +127,6 @@ public class GameLogic : MonoBehaviour
     private void SpawnBlock(float posX)
     {
         int randType = ChooseType(_probabilityTypesBlock);
-        Debug.Log("rand Type" + randType);
-        Debug.Log("Type : " + _typesBlock[randType]);
         GameObject block = _objectPooler.GetObject(_typesBlock[randType], true);
         block.transform.position = new Vector2(posX, _spawnPositionY);
 

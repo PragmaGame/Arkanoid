@@ -5,28 +5,43 @@ public class ViewGameUI : MonoBehaviour
 {
     [SerializeField] private GameObject _restartTitle;
     [SerializeField] private Text _scoreText;
+    [SerializeField] private Text _bestScoreText;
     [SerializeField] private GameLogic gameLogic;
+    [SerializeField] private PlayerScoreModel _playerScoreModel;
     
     private void Start()
     {
         _scoreText.text = "0";
+        _bestScoreText.text = _playerScoreModel.BestScore.ToString();
+    }
+    
+    private void Awake()
+    {
+        _playerScoreModel = FindObjectOfType<PlayerScoreModel>();
     }
     
     private void OnEnable()
     {
-        gameLogic.ChangeScoreEvent += OnChangedScore;
+        _playerScoreModel.ChangedScoreEvent += OnChangedScore;
+        _playerScoreModel.ChangedBestScoreEvent += OnChangedBestScore;
         gameLogic.GameOveredEvent += OnGameOver;
     }
 
     private void OnDisable()
     {
-        gameLogic.ChangeScoreEvent -= OnChangedScore;
+        _playerScoreModel.ChangedScoreEvent -= OnChangedScore;
+        _playerScoreModel.ChangedBestScoreEvent -= OnChangedBestScore;
         gameLogic.GameOveredEvent += OnGameOver;
     }
 
     private void OnChangedScore(int score)
     {
         _scoreText.text = score.ToString();
+    }
+
+    private void OnChangedBestScore(int score)
+    {
+        _bestScoreText.text = score.ToString();
     }
 
     private void OnGameOver()

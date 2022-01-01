@@ -9,6 +9,9 @@ public class SceneManager : MonoBehaviour
     private AudioSource _audioSource;
 
     private bool _musicOn;
+    private bool _isFirstGame;
+
+    public bool IsFirstGame => _isFirstGame;
 
     private void Awake()
     {
@@ -23,6 +26,18 @@ public class SceneManager : MonoBehaviour
         }
         
         _audioSource = GetComponent<AudioSource>();
+        
+        
+        
+        if(PlayerPrefs.GetInt("FIRST_GAME", 0) == 0)
+        {
+            //PlayerPrefs.SetInt("FIRST_GAME", 1);
+            _isFirstGame = true;
+        }
+        else
+        {
+            _isFirstGame = false;
+        }
     }
 
     private void Start()
